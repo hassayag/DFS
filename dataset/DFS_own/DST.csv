@@ -1,0 +1,23 @@
+Player,Team,Opp,Pos,Salary,Own%
+Baltimore Ravens,BAL,WAS,D,"$4,000",18.92%
+Los Angeles Rams,LAR,NYG,D,"$3,900",16.65%
+Tampa Bay Buccaneers,TB,LAC,D,"$3,400",13.62%
+Chicago Bears,CHI,IND,D,"$3,100",9.08%
+Indianapolis Colts,IND,CHI,D,"$3,300",8.32%
+Los Angeles Chargers,LAC,TB,D,"$2,900",7.57%
+Cincinnati Bengals,CIN,JAC,D,"$2,900",5.73%
+Houston Texans,HOU,MIN,D,"$2,500",5.30%
+Washington Football Team,WAS,BAL,D,"$2,100",3.99%
+Arizona Cardinals,ARI,CAR,D,"$3,600",2.65%
+Buffalo Bills,BUF,LV,D,"$3,700",1.44%
+Seattle Seahawks,SEA,MIA,D,"$3,400",1.38%
+New Orleans Saints,NO,DET,D,"$3,500",0.91%
+Cleveland Browns,CLE,DAL,D,"$2,300",0.83%
+Detroit Lions,DET,NO,D,"$2,200",0.76%
+Miami Dolphins,MIA,SEA,D,"$2,000",0.68%
+Jacksonville Jaguars,JAC,CIN,D,"$3,000",0.66%
+Minnesota Vikings,MIN,HOU,D,"$2,800",0.53%
+Carolina Panthers,CAR,ARI,D,"$2,700",0.45%
+New York Giants,NYG,LAR,D,"$2,600",0.25%
+Dallas Cowboys,DAL,CLE,D,"$3,300",0.24%
+Las Vegas Raiders,LV,BUF,D,"$2,700",0.04%
