@@ -152,8 +152,30 @@ def findRow(val, col):
         print(val,' was not found.')
         return 'N'
 
+def grab(col1, Table1, col2, Table2, colOut, PERCENT=False):
+    col1= Table1[col1].values
+    Length = len(col1)
+    # vals_out = np.empty(Length)
+    # vals_out = pd.DataFrame(vals_out)
+    vals_out=[]
+    # print(vals_out)
+    for i in range(Length):
+        val = col1[i]
+        if val == 'Washington':
+            val = 'Washington Football Team'
+        row_ind = findRow(val,Table2[col2].values)
+        if row_ind != 'N':
+            if PERCENT:
+                # vals_out[i] = float(Table2[colOut].values[row_ind][:-1])
+                v = float(Table2[colOut].values[row_ind][:-1])
+            else:
+                v = Table2[colOut].values[row_ind]
+            vals_out.append(v)
+
+    return vals_out
+
 def Table_Main(Table_in):
-    Headings_out = ['Player', 'Pos', 'Team', 'Opp', 'Flr', 'Mean', 'Clg', 'Salary', 'Value','SD','Prob']
+    Headings_out = ['Player', 'Pos', 'Team', 'Opp', 'Flr', 'Mean', 'Clg', 'S alary', 'Value','SD','Prob']
     # T = np.zeros([Table_in.__len__(),19])
     Length = Table_in.__len__()
     Table_out = pd.DataFrame(columns = Headings_out)
@@ -162,6 +184,7 @@ def Table_Main(Table_in):
         i = inds[n]
         Table_out[Headings_out[n]] = Table_in[:,i]
     Pos = Table_out['Pos'][0]
+
     #  Calculate Value  #
     Mean = Table_out['Mean']
     Salary_str = Table_out['Salary'].values
@@ -188,18 +211,19 @@ def Table_Main(Table_in):
     Table_out['Prob'] = Prob
 
     #  Insert DvP Values  #
-    Opp= Table_out['Opp'].values
-    DvP = np.zeros(Length)
-    for i in range(Length):
-        name = Opp[i] 
-        row_ind = findRow(name,ETR['Team'].values)
-        if row_ind != 'N':
-            DvP[i] = float(ETR[Pos].values[row_ind][:-1])/100
+    DvP = grab('Opp', Table_out, 'Team', ETR, Pos,PERCENT=True)
     Table_out['DvP'] = DvP
-    print(Table_out)
-    
+
+    ProjPoints = grab('Team', Table_out,'Team',Vegas,'Projected Points')
+    Table_out['Projected Points'] = ProjPoints
+
+    # print(Table_out)
+    # print(AMF_rush)
+
+
+
 if __name__=="__main__":
-    root = 'D:/Documents/NFL/dataset/'
+    root = 'D:/Documents/DFS/dataset/'
     filename = 'sheet1'
     
     # headings = ['Pos', 'Player', 'DC', 'R', 'GS', 'Team', 'Salary', 'DFKP', 'WAR']
@@ -217,8 +241,10 @@ if __name__=="__main__":
                            'RZ Att', 'RZ Yds', 'RZ %', '$Z Att', '$Z Yds', '$Z %', 'Yds', 'YPC', 'Tds', 'RZ Tds', '$Z Tds'],
                 'DvP'     : ['Def'   , 'QB'    , 'RB'  , 'WR' , 'TE' ],
                 'TDs'     : ['Rank'  , 'Player', 'Team', 'Pos', 'Value'],
-                'roto'    : ['Time'  , 'Team'  , 'Opp' , 'Line', 'Moneyline', 'Over/Under', 'Projected Points', 'Margin'],
-                'ETR'     : ['Team' ,  'QB', 'RB', 'WR', 'TE']
+                'Vegas'   : ['Time'  , 'Team'  , 'Opp' , 'Line', 'Moneyline', 'Over/Under', 'Projected Points', 'Margin'],
+                'ETR'     : ['Team' ,  'QB', 'RB', 'WR', 'TE'],
+                'TSDL'    : ['A','B','C','D','E','F','G','H','I','J','K','L', 'Team' , ' G',  'TDs', 'Avg'],
+                'TDs'  : ['A', 'Player', 'Team', 'Pos', 'TDs']
     }       
 
     ##  Load All Tables  ##
@@ -226,9 +252,28 @@ if __name__=="__main__":
     DFS_ceil = Table('DFS_ceiling.csv',Headings['DFS_ceil'],1,True)
     # DvP = Table('DvP.csv',Headings['DvP'])
     # TDs = Table('QB_Tds.csv',Headings['TDs'])
-    # roto = Table('roto.csv',Headings['roto'])
-    # AMF_rush = Table('amf_rush.csv',Headings['AMF_rush'])
+    Vegas = Table('Vegas.csv',Headings['Vegas']).DF()
+    AMF_rush = Table('amf_rush.csv',Headings['AMF_rush']).DF()
     ETR = Table('ETR.csv', Headings['ETR']).DF()
+    TSDL = Table('TSDL.csv', Headings['TSDL']).DF().drop(columns=Headings['TSDL'][:12],axis=1).drop([0,1,34],axis=0)
+    TDs = Table('QB_Tds.csv', Headings['TDs']).DF().drop(columns=['A'], axis=1)
+    Teams = Table('TeamNames.csv', ['Abbreviation', 'Team']).DF()
+
+    ##  Process TSDL  ##
+    Abb = grab('Team', TSDL, 'Team', Teams, 'Abbreviation')
+    TSDL['Team'] = Abb
+
+    ##  Process TDs  ##
+    Abb = grab('Team', TDs, 'Team', Teams, 'Abbreviation')
+    TDs['Team'] = Abb
+    Team_TDs = grab('Team', TDs, 'Team', TSDL, 'TDs')
+    TDs['Team TDs'] = Team_TDs
+    TD_rate = np.divide(TDs['TDs'].values, TDs['Team TDs'].values.astype(int))*100
+    TDs['TD%'] = TD_rate
+
+    print(TDs)
+
+
     # DFS_own = []
     # Positions = ['DST', 'QB', 'RB', 'TE', 'WR'] # Positions for each table in DFS_own
     # files_own = os.listdir(root+'DFS_own')
@@ -238,4 +283,4 @@ if __name__=="__main__":
     QB, RB, TE, WR = sort(DFS_ceil.__data__(), 1)
     
     ##  Calculate Output Tables  ##
-    QB_out = Table_Main(QB)
+    # QB_out = Table_Main(QB)
